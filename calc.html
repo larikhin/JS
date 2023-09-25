@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        font-size:35px;
+    }
+    table {
+        margin-left: auto;
+        margin-right: auto;
+        border-spacing: 40px; 
+        width:80%; 
+        height:400px; 
+        text-align:center;
+    }
+    th,td {
+        background-color: darkgray;
+        border-radius: 15px;
+    }
+    </style>
+    <title>Calculator</title>
+</head>
+<body>
+
+<table>
+    <th colspan="3" id="total"></th>
+    <tr>
+        <td id="one" onclick="click1(1)">1</td>
+        <td id="two" onclick="click1(2)">2</td>
+        <td id="three" onclick="click1(3)">3</td>
+    </tr>
+    <tr>
+        <td id="four" onclick="click1(4)">4</td>
+        <td id="five" onclick="click1(5)">5</td>
+        <td id="six" onclick="click1(6)">6</td>
+    </tr>
+    <tr>
+        <td id="seven" onclick="click1(7)">7</td>
+        <td id="eight" onclick="click1(8)">8</td>
+        <td id="nine" onclick="click1(9)">9</td>
+    </tr>
+    <tr>
+        <td id="plus" onclick="plus()">+</td>
+        <td id="zero" onclick="click1(9)">0</td>
+        <td id="equal" onclick="eq()" ondblclick="eq_zero()">=</td>
+    </tr>
+</table>
+<script>
+    let t=0;
+    let first_number=0;
+    let second_number=0;
+    let first_number_true=true;
+    function click1(v){
+        this.v = v;
+            if (t){
+                t=t*10+this.v;
+            }
+            else{
+                t = this.v;
+            }
+            document.getElementById("total").innerText = t;
+            if (first_number_true){
+                first_number = t;
+            }
+            else{ 
+                second_number = t;
+            }}
+
+    function plus(){
+        t=0;
+        first_number_true = false;
+    }
+    function eq(){
+        t=first_number+second_number;
+        document.getElementById("total").innerText = t;
+        first_number_true = true;
+        t=0;
+    }
+    function eq_zero(){
+        t=0;
+        document.getElementById("total").innerText = t;
+        first_number_true = true;
+    }
+
+</script>
+</body>
+</html>
