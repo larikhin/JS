@@ -12,9 +12,10 @@
         font-size:35px;
     }
     table {
+        background-color: gray;
         margin-left: auto;
         margin-right: auto;
-        border-spacing: 40px; 
+        border-spacing: 10px; 
         width:80%; 
         height:400px; 
         text-align:center;
@@ -29,65 +30,70 @@
 <body>
 
 <table>
-    <th colspan="3" id="total"></th>
+    <th colspan="4" id="total">0</th>
     <tr>
-        <td id="one" onclick="click1(1)">1</td>
-        <td id="two" onclick="click1(2)">2</td>
-        <td id="three" onclick="click1(3)">3</td>
+        <td id="plus" onclick="action('+')">+</td>
+        <td id="one" onclick="click2(1)">1</td>
+        <td id="two" onclick="click2(2)">2</td>
+        <td id="three" onclick="click2(3)">3</td>
     </tr>
     <tr>
-        <td id="four" onclick="click1(4)">4</td>
-        <td id="five" onclick="click1(5)">5</td>
-        <td id="six" onclick="click1(6)">6</td>
+        <td id="minus" onclick="action('-')">-</td>
+        <td id="four" onclick="click2(4)">4</td>
+        <td id="five" onclick="click2(5)">5</td>
+        <td id="six" onclick="click2(6)">6</td>
     </tr>
     <tr>
-        <td id="seven" onclick="click1(7)">7</td>
-        <td id="eight" onclick="click1(8)">8</td>
-        <td id="nine" onclick="click1(9)">9</td>
+        <td id="mult" onclick="action('*')">*</td>
+        <td id="seven" onclick="click2(7)">7</td>
+        <td id="eight" onclick="click2(8)">8</td>
+        <td id="nine" onclick="click2(9)">9</td>
     </tr>
     <tr>
-        <td id="plus" onclick="plus()">+</td>
-        <td id="zero" onclick="click1(9)">0</td>
-        <td id="equal" onclick="eq()" ondblclick="eq_zero()">=</td>
+        <td id="del" onclick="action('/')">/</td>
+        <td id="res" onclick="res()">r</td>
+        <td id="zero" onclick="click2(0)">0</td>
+        <td id="equal" onclick="eq()"">=</td>
     </tr>
 </table>
 <script>
     let t=0;
-    let first_number=0;
-    let second_number=0;
-    let first_number_true=true;
-    function click1(v){
-        this.v = v;
-            if (t){
-                t=t*10+this.v;
-            }
-            else{
-                t = this.v;
-            }
-            document.getElementById("total").innerText = t;
-            if (first_number_true){
-                first_number = t;
-            }
-            else{ 
-                second_number = t;
-            }}
+    let data = [];
+    let number=0;
 
-    function plus(){
-        t=0;
-        first_number_true = false;
+    function click2(n){
+        this.n = n;
+        if (number>0){
+            number = number*10 + n;
+        }else{
+            number = n;
+        }
+        document.getElementById("total").innerText = number;
     }
+
+    function action(act){
+        this.act = act;
+        if(number>0){
+        data.push(number);
+        data.push(act);
+        document.getElementById("total").innerText = number + ' ' + act;}
+        number=0;
+    }
+
     function eq(){
-        t=first_number+second_number;
+        data.push(number);
+        let jdata = data.join('');
+        console.log(jdata);
+        t = eval(jdata);
         document.getElementById("total").innerText = t;
-        first_number_true = true;
-        t=0;
+        number=0;
+        data = [];
     }
-    function eq_zero(){
+    function res(){
+        number=0;
         t=0;
         document.getElementById("total").innerText = t;
-        first_number_true = true;
     }
-
 </script>
 </body>
 </html>
