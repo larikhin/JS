@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        font-size:15px;
+        background-color: 	#043C6B;
+    }
+    .table_main
+    {
+        height: 420px;
+        width: auto;
+        background-color: #006D4F;
+        border: 10px solid #8EEB00;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: content-box;
+        text-align:center;
+        margin-left: auto;
+        margin-right: auto; 
+    }
+    .th_main {
+        width: 320px;
+        height: 320px; 
+        background-color: black;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+    .tr_main {
+        width: 320px;
+        background-color: #35D3A7;
+        box-sizing: content-box;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+    .table_info
+     {  font-family: 'Roboto', sans-serif;
+        font-size:10px;
+        width: 330px;
+        background-color: #35D3A7;
+        border: 10px solid #8EEB00;
+        padding: 0px;
+        margin: 0px;
+        text-align:center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    </style>
+    <title>Move left right</title>
+</head>
+<body>
+    <table class ='table_info'>
+        <th>Результаты                   </th>  
+        <tr>
+            <td>Пройдено расстояние в:</td>
+            <td id="result_of_game">0</td>
+            <td>световых лет</td>
+        </tr>
+    </table>
+    
+    <p></p>
+
+    <table class ='table_main'>
+        <th class ='th_main' colspan="3" id="head_table"><canvas id="canvas"></canvas></th>
+        <tr class ='tr_main'>
+            <td width="35%" id="start" onclick="start()">start</td>
+            <td id="up" onclick="move_flier(0,-5)" ondblclick="move_flier(0,-11)">up</td>
+            <td width="35%" id="end" onclick="end()">end</td>
+        </tr>
+        <tr class ='tr_main'>
+            <td id="left" onclick="move_flier(-5,0)" ondblclick="move_flier(-11,0)"><</td>
+            <td id="down" onclick="move_flier(0,5)" ondblclick="move_flier(0,11)">down</td>
+            <td id="right" onclick="move_flier(5,0)"ondblclick="move_flier(11,0)">></td>
+        </tr>  
+    </table>
+
+<script>
+    // Константы и канвас
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const CANVAS_WIDTH = canvas.width = 300;
+    const CANVAS_HEIGHT = canvas.height = 300;
+    ctx.lineWidth = 1;
+    let game = false;
+    let game_frame = 0;
+    let aliens = [];
+    let aliens_number = Math.floor(Math.random()*20);
+    let crash_on = false;
+
+    // таблица
+    const result_of_game = document.getElementById('result_of_game');
+    result_of_game.innerText = game_frame;
+   
+    class Flier {
+        constructor(){
+            // координаты самолета
+            this.flight_crd_x = 150;
+            this.flight_crd_y = 275;
+            // размер самолета
+            this.flight_size_x = 20;
+            this.flight_size_y = 30;
+        }
+        draw(){
+            ctx.fillStyle = 'yellow';
+            ctx.beginPath();
+            ctx.moveTo(this.flight_crd_x,this.flight_crd_y+24); //1
+            ctx.lineTo(this.flight_crd_x+4,this.flight_crd_y+8); //2
+            ctx.lineTo(this.flight_crd_x+4,this.flight_crd_y+4); //3
+            ctx.lineTo(this.flight_crd_x+6,this.flight_crd_y+0); //4
+            ctx.lineTo(this.flight_crd_x+8,this.flight_crd_y+4); //5
+            ctx.lineTo(this.flight_crd_x+8,this.flight_crd_y+8); //6
+            ctx.lineTo(this.flight_crd_x+12,this.flight_crd_y+24); //7
+            ctx.closePath();
+            ctx.strokeStyle = "white";
+            ctx.fillStyle = '';
+            ctx.fill();
+            ctx.stroke();
+        }
+        move(new_x,new_y){
+            let new_flight_crd_x = this.flight_crd_x + new_x;
+            let new_flight_crd_y = this.flight_crd_y + new_y;
+            // ограничение выхода за рамки экрана
+            if ((-flr.flight_size_x*0.5<new_flight_crd_x)&&(new_flight_crd_x<CANVAS_WIDTH)) {
+                console.log(new_flight_crd_x,CANVAS_WIDTH)
+                this.flight_crd_x = new_flight_crd_x;
+            }
+            if ((-flr.flight_size_y*0.5<new_flight_crd_y)&&(new_flight_crd_y<CANVAS_HEIGHT)) {
+                this.flight_crd_y = new_flight_crd_y;
+            }
+        }
+    }
+
+    class Alien {
+        constructor() {
+            // размер врага
+            this.alien_size = Math.floor(Math.random()*35);
+            // координаты врага
+            this.alien_crd_x = Math.floor(Math.random()*CANVAS_WIDTH);
+            this.alien_crd_y = - this.alien_size - Math.floor(Math.random()*CANVAS_WIDTH*0.15);
+        }
+        draw(){
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.moveTo(this.alien_crd_x+this.alien_size*0,   this.alien_crd_y+this.alien_size*1);//1
+            ctx.lineTo(this.alien_crd_x+this.alien_size*0.2, this.alien_crd_y+this.alien_size*0.4);//2
+            ctx.lineTo(this.alien_crd_x+this.alien_size*0.2, this.alien_crd_y+this.alien_size*0);//3
+            ctx.lineTo(this.alien_crd_x+this.alien_size*0.5, this.alien_crd_y+this.alien_size*0.2);//4
+            ctx.lineTo(this.alien_crd_x+this.alien_size*1,   this.alien_crd_y+this.alien_size*0);//5
+            ctx.lineTo(this.alien_crd_x+this.alien_size*0.8, this.alien_crd_y+this.alien_size*0.6);//6
+            ctx.lineTo(this.alien_crd_x+this.alien_size*1,   this.alien_crd_y+this.alien_size*1);//7
+            ctx.lineTo(this.alien_crd_x+this.alien_size*0.4, this.alien_crd_y+this.alien_size*0.8);//8
+            ctx.closePath();
+            ctx.strokeStyle = "grey";
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.stroke();
+        }
+        move(){
+            this.alien_crd_y = this.alien_crd_y + 1;
+        }
+    }
+    
+    function aliens_draw(){
+        if (aliens.length==0){
+            // создаю экземпляры алиенов
+            for (let i = 0; i < aliens_number ; i++) {  
+                // наследование класса, создание экземпляра 
+                aliens[i] = new Alien(); 
+        }}
+        else{
+            // для каждого алиена
+            for (let i = 0; i<aliens.length ; i++){
+                // если не вышел из экрана, то
+                if (aliens[i].alien_crd_y<CANVAS_HEIGHT){ 
+                    // рисую 
+                    aliens[i].draw();
+                    // и передвигаю if регулирует скорость полета
+                    if ( game_frame % i == 0) {aliens[i].move();}
+                } 
+                else {aliens[i] = new Alien();} // алиен прошел экран, генерирую нового
+            }
+        }
+    }
+            
+    function move_flier(d_x,d_y){
+        this.d_x = d_x;
+        this.d_y = d_y;
+        flr.move(d_x,d_y);
+    }
+
+    function animate(){
+            if (game){
+                ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT); // очистка экрана
+                aliens_draw();
+                flr.draw();
+                result_of_game.innerText = game_frame+1;
+                crash();
+                game_frame+=1;
+            }
+            requestAnimationFrame(animate);
+    }
+
+    document.addEventListener("keydown", keyDownHandler, false);
+    function keyDownHandler(e) {
+        if (e.keyCode == 37) move_flier(-5,0); // left
+        else if (e.keyCode == 38) move_flier(0,-5); // up
+        else if (e.keyCode == 39) move_flier(5,0); // right
+        else if (e.keyCode == 40) move_flier(0,5); // down
+        else if (e.keyCode == 13) start(); // start
+        else if (e.keyCode == 27) end(); // stop
+    }
+
+    function start() {
+        console.log('start');
+        game = true; 
+        game_frame=0;
+        aliens = [];
+        crash_on = false;
+        // генерирую самолет
+        flr = new Flier();
+        // генерирую алиенов
+        aliens_draw()
+        console.log('start bag');
+    } 
+    
+    function end() {
+        console.log('end');
+        game = false; 
+        game_frame=0;
+        aliens = [];
+        ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        
+    } 
+    
+    function crash() {
+        for ( let i=0; i<aliens.length; i++) {
+            if (((flr.flight_crd_x+flr.flight_size_x) >= aliens[i].alien_crd_x) 
+            &&  (flr.flight_crd_x <= (aliens[i].alien_crd_x+aliens[i].alien_size))
+        &&  (flr.flight_crd_y == (aliens[i].alien_crd_y + aliens[i].alien_size))) {
+            crash_on = true;
+            let fx = flr.flight_crd_x - 5;
+            let fy = flr.flight_crd_y - 5;
+            ctx.beginPath();
+            ctx.moveTo(fx, fy);
+            let coord_boom = [[20,10],[40,0],[35,15],[40,20],[35,30],[40,40],[30,35],[20,40],[10,35],[0,40],[7,30],[0,20],[7,15]]
+            for (value of coord_boom){
+                ctx.lineTo( (fx + value[0]),(fy+value[1]));}
+            ctx.closePath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "orange";
+            ctx.fillStyle = 'red';
+            ctx.fill();
+            ctx.stroke();
+            ctx.lineWidth = 1;    
+            //ctx.fillRect(0,0,100,100);
+            console.log('exploide');
+            game = false; 
+            game_frame=0;
+            aliens = [];
+            //ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+            console.log('crash and end');
+        }
+    }
+}
+animate();
+
+</script>
+</body>
+</html>
