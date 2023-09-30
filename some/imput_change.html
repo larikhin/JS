@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru" xml:lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button id='but' onclick="foo()">Push</button>
+    <input type="text" name="inp" id="inp">
+    <span id="sp">здесь появится значение</span>
+
+<script>
+    function foo(){
+        const but = document.getElementById('but');
+        const inp = document.getElementById('inp');
+        const sp = document.getElementById('sp');
+        if (inp.value){
+        sp.innerHTML = inp.value; 
+        but.style.background = 'grey';
+        }
+    }
+</script>
+</body>
+</html>

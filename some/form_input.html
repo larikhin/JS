@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<input id="elem1" type="text" name="quantity" placeholder="Количество">
+<input id="butt" type="button" value="Кнопка"/><br><br>
+<p onclick="foo()">Результат</p>
+<div id="str"></div>
+<script>
+butt.onclick = function() {
+    var val = document.getElementById('elem1').value;
+
+    document.getElementById('str').innerHTML="Вы ввели: " + val;
+};
+function foo() {
+    var val = document.getElementById('elem1').value;
+
+    document.getElementById('str').innerHTML="Вы ввели: " + val;
+};
+</script>
+</body>
+</html>

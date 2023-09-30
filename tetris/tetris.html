@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тетрис</title>
+    <style>
+        #score{
+            display: inline-block;
+        }
+        body{
+            font-size: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            text-align: left;
+        }
+        canvas{
+            display: block;
+            margin:0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative;">Баллы: <div id="score_html">0</div></div>
+    <div>
+        <canvas style="position: absolute;" id="tetris"></canvas>
+    </div>  
+</body>
+
+<script>
+const I = [
+	[
+		[0, 0, 0, 0],
+		[1, 1, 1, 1],
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+	],
+	[
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+		[0, 0, 1, 0],
+	],
+	[
+		[0, 0, 0, 0],
+		[0, 0, 0, 0],
+		[1, 1, 1, 1],
+		[0, 0, 0, 0],
+	],
+	[
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+		[0, 1, 0, 0],
+	]
+];
+const J = [
+	[
+		[1, 0, 0],
+		[1, 1, 1],
+		[0, 0, 0]
+	],
+	[
+		[0, 1, 1],
+		[0, 1, 0],
+		[0, 1, 0]
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[0, 0, 1]
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 0],
+		[1, 1, 0]
+	]
+];
+
+const L = [
+	[
+		[0, 0, 1],
+		[1, 1, 1],
+		[0, 0, 0]
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 0],
+		[0, 1, 1]
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[1, 0, 0]
+	],
+	[
+		[1, 1, 0],
+		[0, 1, 0],
+		[0, 1, 0]
+	]
+];
+const O = [
+	[
+		[0, 0, 0, 0],
+		[0, 1, 1, 0],
+		[0, 1, 1, 0],
+		[0, 0, 0, 0],
+	]
+];
+const S = [
+	[
+		[0, 1, 1],
+		[1, 1, 0],
+		[0, 0, 0]
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 1],
+		[0, 0, 1]
+	],
+	[
+		[0, 0, 0],
+		[0, 1, 1],
+		[1, 1, 0]
+	],
+	[
+		[1, 0, 0],
+		[1, 1, 0],
+		[0, 1, 0]
+	]
+];
+const T = [
+	[
+		[0, 1, 0],
+		[1, 1, 1],
+		[0, 0, 0]
+	],
+	[
+		[0, 1, 0],
+		[0, 1, 1],
+		[0, 1, 0]
+	],
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[0, 1, 0]
+	],
+	[
+		[0, 1, 0],
+		[1, 1, 0],
+		[0, 1, 0]
+	]
+];
+const Z = [
+	[
+		[1, 1, 0],
+		[0, 1, 1],
+		[0, 0, 0]
+	],
+	[
+        [0, 0, 1],
+		[0, 1, 1],
+		[0, 1, 0]
+	],
+	[
+        [0, 0, 0],
+		[1, 1, 0],
+		[0, 1, 1]
+	],
+	[
+        [0, 1, 0],
+		[1, 1, 0],
+		[1, 0, 0]
+	]
+];
+
+const PIECES = [
+    [Z, 'red'],
+    [S, 'green'],
+    [T, 'yellow'],
+    [O, 'blue'],
+    [L, 'purple'],
+    [I, 'cyan'],
+    [J, 'orange'],
+];
+
+
+const canvas = document.getElementById('tetris');
+const CANVAS_WIDTH = canvas.width = 200;
+const CANVAS_HEIGHT = canvas.height = 400;
+const ctx = canvas.getContext('2d');
+const SQ = squareSize = 20;
+const ROW = 20;
+const COLUMN = 10;
+const VACANT = 'white';
+
+let score = 0;
+let gamespeed = 1000;
+
+// отрисовка квадрата на доске
+function drawSquare(x,y,color){
+    ctx.fillStyle = color;
+    ctx.fillRect(x*SQ, y*SQ, SQ, SQ);
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(x*SQ, y*SQ, SQ, SQ);
+}
+
+// создание доски c пустыми значениями
+let board=[];
+for (row = 0; row < ROW; row++) {
+    board[row] = [];
+    for (column = 0; column < COLUMN; column++) {
+        board[row][column] = VACANT;      
+    }
+}
+
+// отрисовка доски
+function drawBoard(){
+    for (row = 0; row < ROW; row++) {
+        for (column = 0; column < COLUMN; column++) {
+            drawSquare(column, row, board[row][column]);      
+        }
+    }
+}
+
+drawBoard();
+
+function randomPiece(){
+    let r = randomN = Math.floor(Math.random() * PIECES.length);
+    // PIECES[0][0] матрица
+    // PIECES[0][1] ее цвет 
+    // p = new Piece(PIECES[число][0]PIECES[число][1])
+    return new Piece(PIECES[r][0],PIECES[r][1]);
+}
+
+let p = randomPiece();
+
+
+function Piece(tetromino, color){
+    this.tetromino = tetromino;
+    this.color = color;
+
+    this.tetrominoN = 0; // начало с первого паттерна
+    this.activeTetromino = this.tetromino[this.tetrominoN];
+
+    this.x = 3;
+    this.y = -2;
+}
+
+// заполняем каждый квадрат матрицы переданным цветом
+Piece.prototype.fill = function(color) {
+    for (row = 0; row < this.activeTetromino.length; row++) {
+        for (column = 0; column < this.activeTetromino[row].length; column++) {
+            // если значение в матрице 1 то true
+            if (this.activeTetromino[row][column]) {
+                // координата фигуры + координата квардрата внутри фигуры
+                drawSquare(this.x + column, this.y + row, color);      
+            }
+        }
+    }
+}
+
+// стираем фигуру перед изменением координат или вращением
+Piece.prototype.unDraw = function() {
+    this.fill(VACANT);
+}
+
+// рисуем фигуру
+Piece.prototype.draw = function() {
+   this.fill(this.color);
+}
+
+Piece.prototype.moveDown = function(){
+    // по ничего, по y + 1
+    if (!this.collision(0,1,this.activeTetromino)){    
+        this.unDraw();
+        this.y++;
+        this.draw();
+    } else {
+        // падать некуда, значит генерируем новую фигуру
+        this.lock();
+        p = randomPiece();
+    }
+}
+
+Piece.prototype.moveRight = function(){
+    if (!this.collision(1,0,this.activeTetromino)){ 
+        this.unDraw();
+        this.x++;
+        this.draw();
+    }
+}
+
+Piece.prototype.moveLeft = function(){
+    if (!this.collision(-1,0,this.activeTetromino)){ 
+        this.unDraw();
+        this.x--;
+        this.draw();
+    }
+}
+
+Piece.prototype.rotate = function(){
+    let nextPattern = this.tetromino[(this.tetrominoN + 1)%this.tetromino.length];
+    let kick = 0;
+
+    if (this.collision(0,0,nextPattern)){
+        if (this.x > COLUMN/2){
+            kick = -1;
+        } else{
+            kick = 1;       
+        }
+    }
+
+    if (!this.collision(kick,0,nextPattern)){ 
+        this.unDraw();
+        this.x +=kick;
+        // следующий вариант в матрице, если последний возвращаем к 0-му элементу
+        this.tetrominoN = (this.tetrominoN + 1) % this.tetromino.length;
+        this.activeTetromino = this.tetromino[this.tetrominoN];
+        this.draw();
+    }
+}
+
+Piece.prototype.collision = function (x, y, piece){
+    for (row = 0; row < piece.length; row++) {
+        for (column = 0; column < piece.length; column++) {
+            // если квадрат на доске пустой, то прерываем цикл
+            // если пустой, то и делать ничего с ним не нужно
+            if (!piece[row][column]){
+                continue;
+            }
+            // если не пустой, нужно проверить что с ним произойдет
+            // координаты после движения
+            let newX = this.x + column + x;
+            let newY = this.y + row + y;
+            // границы экрана
+            // если вышел за пределы, то коллизия!
+            if (newX < 0 || newX >= COLUMN || newY >= ROW){
+                return true;
+            }
+            // если вверху экрана, то все ок
+            if (newY<0){
+                continue;
+            } 
+            // проверка занятости квадрата на доске
+            // если на доске уже что-то, то коллизия!
+            if (board[newY][newX] != VACANT){
+                return true;
+            }
+        }
+    }
+    // проверки пройдены, коллизии нет
+    return false;
+}
+
+Piece.prototype.lock = function() {
+    for (row = 0; row < this.activeTetromino.length; row++) {
+        for (column = 0; column < this.activeTetromino.length; column++) {
+            // пропускаем пустые квадраты
+            if (!this.activeTetromino[row][column]) {
+                // координата фигуры + координата квардрата внутри фигуры
+                continue;      
+            }
+            if (this.y + row < 0){
+                alert("Game over");
+                gameOver = true;
+                break;
+            }
+            board[this.y + row][this.x + column] = this.color;
+        }
+    }
+    // удаление заполненого ряда
+    for (r = 0; r < ROW; r++){
+        let isRowFull = true;
+        for (c = 0; c < COLUMN; c++){
+            isRowFull = isRowFull && (board[r][c] != VACANT);
+        }
+        if (isRowFull){
+            // если какой-то ряд полоно передвигаем все которые над вниз на 1 позицию
+            for (y = r; y >1; y--){
+                // все ячейки ряда
+                for (c=0; c<COLUMN; c++){
+                    // заполняем верхним
+                    board[y][c] = board [y-1][c];
+                }
+            }
+            for (c=0; c<COLUMN; c++){
+                // и верхнюю строчку очищаем
+                board[0][c] = VACANT;
+            }
+            score += 1;
+            gamespeed-=score;
+        }
+    }
+    //
+    drawBoard();
+    document.getElementById('score_html').innerText = score;
+
+}
+
+
+document.addEventListener("keydown", CONTROL);
+function CONTROL(event){
+    // left 37
+    if (event.keyCode == 37){
+        p.moveLeft();
+        dropStart = Date.now();
+    }
+    // rotate 38
+    else if (event.keyCode == 38){
+        p.rotate();
+        dropStart = Date.now();
+    }
+    // right 39
+    else if (event.keyCode == 39){
+        p.moveRight();
+        dropStart = Date.now();
+    }
+    // right 40
+    else if (event.keyCode == 40){
+        p.moveDown();
+        dropStart = Date.now();
+    }
+}
+
+
+// фиксация текущего времени
+let dropStart = Date.now();
+let gameOver = false;
+
+function drop(){
+    let now = Date.now();
+    let delta = now - dropStart;
+    // 1000 милисекунд = 1 секунда
+    if (delta > gamespeed ) {
+        p.moveDown();
+        dropStart = Date.now();
+    }
+    if (!gameOver){    
+        requestAnimationFrame(drop);
+    }
+
+}
+drop();
+
+
+
+</script>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+  
+</head>
+<body>
+	
+  <form name="my">
+    <input name="one" name="one" value="01" >
+    <input name="two" value="2">
+    <input type="submit" value="Отправить">
+    <input value="Нажми меня" onclick="click1()" type="button">
+  </form>
+  <canvas id="canvas"></canvas>
+  <p onclick="click1()">ppppp</p>
+  <script>
+  
+    // получаем элемент
+  const myForm = document.getElementsByName('one'); // получаем форму по ее id
+  const canvas = document.getElementById("canvas");
+  canvas.width = 150;
+  canvas.height = 150;
+  const context = canvas.getContext('2d');
+  context.fillStyle = "green";
+  function click1(){
+  context.fillRect( Math.floor(Math.random()*canvas.width),
+                    Math.floor(Math.random()*canvas.height),
+                    Math.floor(Math.random()*canvas.width),
+                    Math.floor(Math.random()*canvas.height)); 
+  }
+
+</script>  
+<div id="ptext"></div>
+<script>
+  const ptext = document.getElementById("ptext");
+  ptext.innerHTML = '<p id="ptext">какой-то текст</p><p id="ptext">какой-то текст</p>';
+</script> 
+</body>
+</html>

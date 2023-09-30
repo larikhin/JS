@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script type="text/javascript">
+		let current = 0;
+		let speed = 100;
+
+		function createRadioButtons(num){
+			document.write('<form name="animation">');
+			for (let i =0; i < num; i++){
+				document.write('<input type="radio" name="lamps">');
+			}
+			document.write("</form>");
+		} 
+		
+		function makeFX(){
+			document.animation.lamps[current].click();
+			current = (current == document.animation.lamps.length - 1) ? 0 :			++current;
+			setTimeout("makeFX()", speed);
+		}
+		createRadioButtons(25);		
+	</script>
+</head>
+<body onload="makeFX()">
+
+<h2>>херня</h2>
+</body>
+</html>
